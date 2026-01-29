@@ -154,7 +154,7 @@ export default function RSVPPage() {
 
               {/* Decorative hearts */}
               <div className="absolute -top-4 -left-4 text-4xl animate-pulse">
-                💖
+                💕
               </div>
               <div
                 className="absolute -top-2 -right-6 text-3xl animate-pulse"
@@ -318,7 +318,7 @@ function Polaroid({
   return (
     <div
       // Changed opacity from 60 to 80 (50% less whitening effect)
-      className={`w-64 md:w-88 bg-white p-3 shadow-xl animate-polaroid opacity-80 hover:opacity-100 transition-opacity ${className}`}
+      className={`w-44 md:w-60 bg-white p-2 shadow-xl animate-polaroid opacity-80 hover:opacity-100 transition-opacity ${className}`}
       style={
         {
           "--rotation": `${rotation}deg`,
@@ -424,7 +424,7 @@ function RSVPLoginForm({ onSuccess }: RSVPLoginFormProps) {
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 focus:border-rose-300 outline-none transition-shadow placeholder-gray-400"
+            className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 focus:border-rose-300 outline-none transition-shadow placeholder-gray-400 text-gray-900"
             placeholder="Your first name"
             required
           />
@@ -444,7 +444,7 @@ function RSVPLoginForm({ onSuccess }: RSVPLoginFormProps) {
             type="text"
             value={passcode}
             onChange={(e) => setPasscode(e.target.value)}
-            className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 focus:border-rose-300 outline-none transition-shadow placeholder-gray-400"
+            className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 focus:border-rose-300 outline-none transition-shadow placeholder-gray-400 text-gray-900"
             placeholder="From your invitation"
             required
           />
@@ -638,7 +638,7 @@ function RSVPResponseForm({ guest, onSuccess, onBack }: RSVPResponseFormProps) {
               <select
                 value={numberAttending}
                 onChange={(e) => setNumberAttending(Number(e.target.value))}
-                className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 outline-none"
+                className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 outline-none text-gray-900"
               >
                 {Array.from({ length: maxAttendees }, (_, i) => i + 1).map(
                   (num) => (
@@ -668,7 +668,7 @@ function RSVPResponseForm({ guest, onSuccess, onBack }: RSVPResponseFormProps) {
                     value={plusOneNames[i] || ""}
                     onChange={(e) => handlePlusOneNameChange(i, e.target.value)}
                     placeholder={`Guest ${i + 1} name`}
-                    className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 outline-none placeholder-gray-400"
+                    className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 outline-none placeholder-gray-400 text-gray-900"
                   />
                 ))}
               </div>
@@ -800,9 +800,9 @@ function ThankYouPage() {
           </div>
 
           {/* Mini polaroid collage */}
-          <div className="flex justify-center gap-2 mt-6">
-            <div className="w-16 h-20 bg-white/80 p-1 shadow-md transform -rotate-6">
-              <div className="w-full h-12 overflow-hidden">
+          <div className="flex justify-center gap-3 mt-6">
+            <div className="w-32 h-40 bg-white/80 p-2 shadow-md transform -rotate-6">
+              <div className="w-full h-24 overflow-hidden">
                 <img
                   src="https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple5.jpg"
                   alt=""
@@ -810,8 +810,8 @@ function ThankYouPage() {
                 />
               </div>
             </div>
-            <div className="w-16 h-20 bg-white/80 p-1 shadow-md transform rotate-3">
-              <div className="w-full h-12 overflow-hidden">
+            <div className="w-32 h-40 bg-white/80 p-2 shadow-md transform rotate-3">
+              <div className="w-full h-24 overflow-hidden">
                 <img
                   src="https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple6.jpg"
                   alt=""
@@ -819,8 +819,8 @@ function ThankYouPage() {
                 />
               </div>
             </div>
-            <div className="w-16 h-20 bg-white/80 p-1 shadow-md transform -rotate-3">
-              <div className="w-full h-12 overflow-hidden">
+            <div className="w-32 h-40 bg-white/80 p-2 shadow-md transform -rotate-3">
+              <div className="w-full h-24 overflow-hidden">
                 <img
                   src="https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple7.jpg"
                   alt=""
