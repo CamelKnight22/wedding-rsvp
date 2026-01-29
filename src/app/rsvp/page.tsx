@@ -596,7 +596,7 @@ function RSVPResponseForm({ guest, onSuccess, onBack }: RSVPResponseFormProps) {
               className="sr-only"
             />
             <span className="text-2xl mb-2">🎉</span>
-            <span className="font-medium text-center text-sm">
+            <span className="font-medium text-center text-sm text-gray-800">
               Yes, I&apos;ll be there!
             </span>
           </label>
@@ -617,7 +617,7 @@ function RSVPResponseForm({ guest, onSuccess, onBack }: RSVPResponseFormProps) {
               className="sr-only"
             />
             <span className="text-2xl mb-2">😢</span>
-            <span className="font-medium text-center text-sm">
+            <span className="font-medium text-center text-sm text-gray-800">
               Sorry, I can&apos;t make it
             </span>
           </label>
