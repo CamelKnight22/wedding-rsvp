@@ -27,17 +27,17 @@ const INTRO_IMAGE =
 const POLAROID_IMAGES = [
   {
     url: "https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple1.jpg",
-    caption: "Our first date",
+    caption: "<3",
     rotation: -6,
   },
   {
     url: "https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple2.jpg",
-    caption: "The proposal",
+    caption: "Can't wait to see you!",
     rotation: 4,
   },
   {
     url: "https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple3.jpg",
-    caption: "Summer adventures",
+    caption: "Our new adventures!",
     rotation: -3,
   },
   {
@@ -133,7 +133,7 @@ export default function RSVPPage() {
           >
             {/* Main Image */}
             <div className="relative mb-8 animate-float">
-              <div className="w-52 h-52 md:w-64 md:h-64 mx-auto rounded-full overflow-hidden border-8 border-white shadow-2xl">
+              <div className="w-88 h-88 md:w-108 md:h-108 mx-auto rounded-full overflow-hidden border-8 border-white shadow-2xl">
                 <img
                   src={INTRO_IMAGE}
                   alt="We're getting married"
@@ -166,7 +166,7 @@ export default function RSVPPage() {
                 className="absolute -bottom-2 -left-6 text-3xl animate-pulse"
                 style={{ animationDelay: "500ms" }}
               >
-                💓
+                💖
               </div>
               <div
                 className="absolute -bottom-4 -right-4 text-4xl animate-pulse"
@@ -177,11 +177,11 @@ export default function RSVPPage() {
             </div>
 
             {/* Calligraphy Text - reduced by 40% */}
-            <h1 className="font-serif text-3xl md:text-4xl text-white mb-4 animate-fade-in-up drop-shadow-lg">
+            <h1 className="font-serif text-5xl md:text-6xl text-white mb-4 animate-fade-in-up drop-shadow-lg">
               We&apos;re Getting
             </h1>
             <h1
-              className="font-serif text-4xl md:text-5xl text-rose-300 drop-shadow-lg"
+              className="font-serif text-6xl md:text-8xl text-rose-300 drop-shadow-lg"
               style={{
                 animation: "fade-in-up 0.8s ease-out 200ms forwards",
                 opacity: 0,
@@ -277,7 +277,7 @@ export default function RSVPPage() {
             transform: rotate(var(--rotation)) translateY(0);
           }
           50% {
-            transform: rotate(calc(var(--rotation) + 2deg)) translateY(-5px);
+            transform: rotate(calc(var(--rotation) + 6deg)) translateY(-12px);
           }
         }
 
@@ -290,7 +290,7 @@ export default function RSVPPage() {
         }
 
         .animate-polaroid {
-          animation: polaroid-sway 4s ease-in-out infinite;
+          animation: polaroid-sway 2s ease-in-out infinite;
         }
       `}</style>
     </div>
@@ -318,7 +318,7 @@ function Polaroid({
   return (
     <div
       // Changed opacity from 60 to 80 (50% less whitening effect)
-      className={`w-32 md:w-44 bg-white p-2 shadow-xl animate-polaroid opacity-80 hover:opacity-100 transition-opacity ${className}`}
+      className={`w-64 md:w-88 bg-white p-3 shadow-xl animate-polaroid opacity-80 hover:opacity-100 transition-opacity ${className}`}
       style={
         {
           "--rotation": `${rotation}deg`,
@@ -804,7 +804,7 @@ function ThankYouPage() {
             <div className="w-16 h-20 bg-white/80 p-1 shadow-md transform -rotate-6">
               <div className="w-full h-12 overflow-hidden">
                 <img
-                  src="https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple1.jpg"
+                  src="https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple5.jpg"
                   alt=""
                   className="w-full h-full object-cover"
                 />
@@ -813,7 +813,7 @@ function ThankYouPage() {
             <div className="w-16 h-20 bg-white/80 p-1 shadow-md transform rotate-3">
               <div className="w-full h-12 overflow-hidden">
                 <img
-                  src="https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple1.jpg"
+                  src="https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple6.jpg"
                   alt=""
                   className="w-full h-full object-cover"
                 />
@@ -822,7 +822,7 @@ function ThankYouPage() {
             <div className="w-16 h-20 bg-white/80 p-1 shadow-md transform -rotate-3">
               <div className="w-full h-12 overflow-hidden">
                 <img
-                  src="https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple1.jpg"
+                  src="https://jtnppvnjwkfbyzwgcmgs.supabase.co/storage/v1/object/public/wedding/polaroids/couple7.jpg"
                   alt=""
                   className="w-full h-full object-cover"
                 />
@@ -840,12 +840,12 @@ function ThankYouPage() {
             transform: rotate(var(--rotation)) translateY(0);
           }
           50% {
-            transform: rotate(calc(var(--rotation) + 2deg)) translateY(-5px);
+            transform: rotate(calc(var(--rotation) + 6deg)) translateY(-12px);
           }
         }
 
         .animate-polaroid {
-          animation: polaroid-sway 4s ease-in-out infinite;
+          animation: polaroid-sway 2s ease-in-out infinite;
         }
       `}</style>
     </div>
