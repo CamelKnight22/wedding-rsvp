@@ -68,10 +68,12 @@ export async function POST(request: NextRequest) {
   }
 
   const results = [];
-  const rsvpUrl = `${baseUrl}/rsvp`;
 
   for (const guest of guests) {
     try {
+      // Build per-guest RSVP URL with name and passcode pre-filled
+      const rsvpUrl = `${baseUrl}/rsvp?name=${encodeURIComponent(guest.first_name)}&code=${encodeURIComponent(guest.passcode)}`;
+
       const messageBody = `Dear ${guest.first_name},
 
 You're invited to ${settings.couple_names}'s wedding!

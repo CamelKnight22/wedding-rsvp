@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import confetti from "canvas-confetti";
 
 interface GuestData {
@@ -352,13 +353,13 @@ interface RSVPLoginFormProps {
 }
 
 function RSVPLoginForm({ onSuccess }: RSVPLoginFormProps) {
-  const [firstName, setFirstName] = useState("");
-  const [passcode, setPasscode] = useState("");
+  const searchParams = useSearchParams();
+  const [firstName, setFirstName] = useState(searchParams.get("name") || "");
+  const [passcode, setPasscode] = useState(searchParams.get("code") || "");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (name: string, code: string) => {
     setError("");
     setIsLoading(true);
 
@@ -366,7 +367,7 @@ function RSVPLoginForm({ onSuccess }: RSVPLoginFormProps) {
       const res = await fetch("/api/rsvp/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, passcode }),
+        body: JSON.stringify({ firstName: name, passcode: code }),
       });
 
       const data = await res.json();
@@ -382,6 +383,11 @@ function RSVPLoginForm({ onSuccess }: RSVPLoginFormProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleLogin(firstName, passcode);
   };
 
   return (
