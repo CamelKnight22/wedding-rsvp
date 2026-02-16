@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import confetti from "canvas-confetti";
 
@@ -239,7 +239,9 @@ export default function RSVPPage() {
       {/* Main Content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
         {!guest ? (
-          <RSVPLoginForm onSuccess={setGuest} />
+          <Suspense fallback={<div className="text-gray-500">Loading...</div>}>
+            <RSVPLoginForm onSuccess={setGuest} />
+          </Suspense>
         ) : (
           <RSVPResponseForm
             guest={guest}
