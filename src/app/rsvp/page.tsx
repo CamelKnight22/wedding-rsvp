@@ -489,16 +489,14 @@ function RSVPResponseForm({ guest, onSuccess, onBack }: RSVPResponseFormProps) {
       ? "not_attending"
       : "attending",
   );
-  const [numberAttending, setNumberAttending] = useState(
-    guest.current_rsvp?.number_attending || 1,
-  );
   const [plusOneNames, setPlusOneNames] = useState<string[]>(
     guest.plus_ones?.map((p) => p.name) || [],
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const maxAttendees = 1 + guest.plus_ones_allowed;
+  const maxPlusOnes = guest.plus_ones_allowed;
+  const numberAttending = 1 + plusOneNames.length;
 
   const handlePlusOneNameChange = (index: number, value: string) => {
     const newNames = [...plusOneNames];
@@ -506,17 +504,16 @@ function RSVPResponseForm({ guest, onSuccess, onBack }: RSVPResponseFormProps) {
     setPlusOneNames(newNames);
   };
 
-  useEffect(() => {
-    const numPlusOnes = numberAttending - 1;
-    if (plusOneNames.length < numPlusOnes) {
-      setPlusOneNames([
-        ...plusOneNames,
-        ...Array(numPlusOnes - plusOneNames.length).fill(""),
-      ]);
-    } else if (plusOneNames.length > numPlusOnes) {
-      setPlusOneNames(plusOneNames.slice(0, numPlusOnes));
+  const handleAddPlusOnes = () => {
+    const slotsToAdd = maxPlusOnes - plusOneNames.length;
+    if (slotsToAdd > 0) {
+      setPlusOneNames([...plusOneNames, ...Array(slotsToAdd).fill("")]);
     }
-  }, [numberAttending]);
+  };
+
+  const handleRemovePlusOne = (index: number) => {
+    setPlusOneNames(plusOneNames.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -631,55 +628,68 @@ function RSVPResponseForm({ guest, onSuccess, onBack }: RSVPResponseFormProps) {
           </label>
         </div>
 
-        {status === "attending" && maxAttendees > 1 && (
-          <div className="space-y-4">
-            <div>
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
+        {status === "attending" && maxPlusOnes > 0 && (
+          <div className="space-y-3">
+            {plusOneNames.length === 0 ? (
+              <button
+                type="button"
+                onClick={handleAddPlusOnes}
+                className="w-full border-2 border-dashed border-rose-300 text-rose-500 bg-white/60 backdrop-blur-sm rounded-xl py-3 px-4 font-semibold hover:bg-white/80 hover:border-rose-400 transition-all flex items-center justify-center gap-2"
                 style={{
                   textShadow:
                     "0 0 12px rgba(255,255,255,0.95), 0 0 24px rgba(255,255,255,0.84)",
                 }}
               >
-                How many people in your party?
-              </label>
-              <select
-                value={numberAttending}
-                onChange={(e) => setNumberAttending(Number(e.target.value))}
-                className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 outline-none text-gray-900"
-              >
-                {Array.from({ length: maxAttendees }, (_, i) => i + 1).map(
-                  (num) => (
-                    <option key={num} value={num}>
-                      {num} {num === 1 ? "person" : "people"}
-                    </option>
-                  ),
-                )}
-              </select>
-            </div>
-
-            {numberAttending > 1 && (
-              <div className="space-y-3">
+                <span className="text-lg">+</span>
+                Add Guest{maxPlusOnes > 1 ? "s" : ""} (Plus one
+                {maxPlusOnes > 1 ? "s" : ""})
+              </button>
+            ) : (
+              <>
                 <label
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-semibold text-gray-800 bg-white/60 backdrop-blur-sm rounded-md px-2 py-1 w-fit"
                   style={{
                     textShadow:
                       "0 0 12px rgba(255,255,255,0.95), 0 0 24px rgba(255,255,255,0.84)",
                   }}
                 >
-                  Guest names
+                  Other Guests Names
                 </label>
-                {Array.from({ length: numberAttending - 1 }, (_, i) => (
-                  <input
-                    key={i}
-                    type="text"
-                    value={plusOneNames[i] || ""}
-                    onChange={(e) => handlePlusOneNameChange(i, e.target.value)}
-                    placeholder={`Guest ${i + 1} name`}
-                    className="w-full border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 outline-none placeholder-gray-400 text-gray-900"
-                  />
+                {plusOneNames.map((name, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) =>
+                        handlePlusOneNameChange(i, e.target.value)
+                      }
+                      placeholder={`Guest ${i + 1} name`}
+                      className="flex-1 border border-gray-300 bg-white/90 rounded-lg px-4 py-3 focus:ring-2 focus:ring-rose-300 outline-none placeholder-gray-400 text-gray-900"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePlusOne(i)}
+                      className="w-10 h-12 flex items-center justify-center text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                      aria-label="Remove guest"
+                    >
+                      &times;
+                    </button>
+                  </div>
                 ))}
-              </div>
+                {plusOneNames.length < maxPlusOnes && (
+                  <button
+                    type="button"
+                    onClick={() => setPlusOneNames([...plusOneNames, ""])}
+                    className="text-sm text-rose-500 bg-white/60 backdrop-blur-sm rounded-md px-2 py-1 font-semibold hover:bg-white/80 flex items-center gap-1 mt-1 transition-all"
+                    style={{
+                      textShadow:
+                        "0 0 12px rgba(255,255,255,0.95), 0 0 24px rgba(255,255,255,0.84)",
+                    }}
+                  >
+                    <span>+</span> Add another guest (Plus one)
+                  </button>
+                )}
+              </>
             )}
           </div>
         )}
