@@ -63,6 +63,7 @@ export default function GuestsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
+  const [rsvpGuest, setRsvpGuest] = useState<Guest | null>(null);
 
   useEffect(() => {
     loadGuests();
@@ -101,7 +102,7 @@ export default function GuestsPage() {
 
     if (!rsvp || rsvp.status === "pending") {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 cursor-pointer hover:bg-yellow-200 transition-colors">
           <Clock size={12} />
           Pending
         </span>
@@ -109,14 +110,14 @@ export default function GuestsPage() {
     }
     if (rsvp.status === "attending") {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 cursor-pointer hover:bg-green-200 transition-colors">
           <Check size={12} />
           Attending ({rsvp.number_attending})
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 cursor-pointer hover:bg-red-200 transition-colors">
         <X size={12} />
         Not Attending
       </span>
@@ -289,7 +290,14 @@ export default function GuestsPage() {
                         <span className="text-gray-400">-</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">{getStatusBadge(guest)}</td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => setRsvpGuest(guest)}
+                        title="Click to update RSVP"
+                      >
+                        {getStatusBadge(guest)}
+                      </button>
+                    </td>
                     <td className="px-6 py-4 text-gray-600">
                       {guest.table_assignments?.[0]?.tables?.name || "-"}
                     </td>
@@ -334,6 +342,210 @@ export default function GuestsPage() {
           }}
         />
       )}
+
+      {/* RSVP Modal */}
+      {rsvpGuest && (
+        <RSVPModal
+          guest={rsvpGuest}
+          onClose={() => setRsvpGuest(null)}
+          onSave={() => {
+            setRsvpGuest(null);
+            loadGuests();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+interface RSVPModalProps {
+  guest: Guest;
+  onClose: () => void;
+  onSave: () => void;
+}
+
+function RSVPModal({ guest, onClose, onSave }: RSVPModalProps) {
+  const rsvp = getRsvp(guest);
+  const [status, setStatus] = useState<"attending" | "not_attending" | "">(
+    rsvp?.status === "attending" || rsvp?.status === "not_attending"
+      ? rsvp.status
+      : "",
+  );
+  const [plusOneNames, setPlusOneNames] = useState<string[]>(
+    guest.plus_ones?.map((p) => p.name) || [],
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const handlePlusOneChange = (index: number, value: string) => {
+    const updated = [...plusOneNames];
+    updated[index] = value;
+    setPlusOneNames(updated);
+  };
+
+  const addPlusOne = () => {
+    if (plusOneNames.length < guest.plus_ones_allowed) {
+      setPlusOneNames([...plusOneNames, ""]);
+    }
+  };
+
+  const removePlusOne = (index: number) => {
+    setPlusOneNames(plusOneNames.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async () => {
+    if (!status) {
+      setError("Please select a status");
+      return;
+    }
+
+    setError("");
+    setIsSaving(true);
+
+    try {
+      const names = plusOneNames.filter((n) => n.trim());
+      const res = await fetch("/api/rsvp/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          guestId: guest.id,
+          status,
+          numberAttending:
+            status === "attending" ? 1 + names.length : 0,
+          plusOneNames: status === "attending" ? names : [],
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Failed to update RSVP");
+        return;
+      }
+
+      onSave();
+    } catch {
+      setError("An unexpected error occurred");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b">
+          <h2 className="text-xl font-semibold text-gray-800">
+            RSVP for {guest.first_name} {guest.last_name}
+          </h2>
+          {rsvp?.responded_at && (
+            <p className="text-xs text-gray-400 mt-1">
+              Last responded:{" "}
+              {new Date(rsvp.responded_at).toLocaleDateString()}
+            </p>
+          )}
+        </div>
+
+        <div className="p-6 space-y-5">
+          {/* Status Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Status
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setStatus("attending")}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 font-medium transition-colors ${
+                  status === "attending"
+                    ? "border-green-500 bg-green-50 text-green-700"
+                    : "border-gray-200 text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                <Check size={18} />
+                Attending
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatus("not_attending")}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 font-medium transition-colors ${
+                  status === "not_attending"
+                    ? "border-red-500 bg-red-50 text-red-700"
+                    : "border-gray-200 text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                <X size={18} />
+                Not Attending
+              </button>
+            </div>
+          </div>
+
+          {/* Plus Ones (only when attending and allowed) */}
+          {status === "attending" && guest.plus_ones_allowed > 0 && (
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Plus Ones ({plusOneNames.length}/{guest.plus_ones_allowed})
+                </label>
+                {plusOneNames.length < guest.plus_ones_allowed && (
+                  <button
+                    type="button"
+                    onClick={addPlusOne}
+                    className="text-sm text-rose-500 hover:text-rose-600"
+                  >
+                    + Add
+                  </button>
+                )}
+              </div>
+              <div className="space-y-2">
+                {plusOneNames.map((name, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) =>
+                        handlePlusOneChange(index, e.target.value)
+                      }
+                      placeholder="Plus one name"
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-rose-300 focus:border-rose-300 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePlusOne(index)}
+                      className="px-3 py-2 text-red-500 hover:text-red-600"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSaving || !status}
+              className="flex-1 bg-rose-500 text-white rounded-lg py-2 font-medium hover:bg-rose-600 disabled:opacity-50 transition-colors"
+            >
+              {isSaving ? "Saving..." : "Update RSVP"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
