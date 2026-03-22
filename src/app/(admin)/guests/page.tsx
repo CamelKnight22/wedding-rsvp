@@ -149,6 +149,15 @@ export default function GuestsPage() {
     return !rsvp || rsvp.status === "pending";
   }).length;
 
+  const totalGuestsComing = guests.reduce((sum, g) => {
+    const rsvp = getRsvp(g);
+    return rsvp?.status === "attending" ? sum + (rsvp.number_attending || 0) : sum;
+  }, 0);
+
+  const totalGuestsExpected =
+    guests.length +
+    guests.reduce((sum, g) => sum + (g.plus_ones_allowed || 0), 0);
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -176,6 +185,24 @@ export default function GuestsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-300 focus:border-rose-300 outline-none"
           />
+        </div>
+      </div>
+
+      {/* Primary Stats */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-rose-50 rounded-xl shadow-sm p-4 border border-rose-100">
+          <p className="text-2xl font-semibold text-rose-700">
+            {totalGuestsComing}
+          </p>
+          <p className="text-sm text-rose-500">Total Guests Coming</p>
+          <p className="text-xs text-rose-400 mt-1">RSVPed + their plus ones</p>
+        </div>
+        <div className="bg-blue-50 rounded-xl shadow-sm p-4 border border-blue-100">
+          <p className="text-2xl font-semibold text-blue-700">
+            {totalGuestsExpected}
+          </p>
+          <p className="text-sm text-blue-500">Total Guests Expected</p>
+          <p className="text-xs text-blue-400 mt-1">All guests + all plus one slots</p>
         </div>
       </div>
 
