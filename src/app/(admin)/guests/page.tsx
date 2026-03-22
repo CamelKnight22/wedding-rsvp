@@ -61,6 +61,7 @@ export default function GuestsPage() {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "attending" | "pending" | "not_attending">("all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
   const [rsvpGuest, setRsvpGuest] = useState<Guest | null>(null);
@@ -89,12 +90,18 @@ export default function GuestsPage() {
     const plusOneNames =
       guest.plus_ones?.map((p) => p.name.toLowerCase()).join(" ") || "";
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch =
       fullName.includes(query) ||
       guest.phone.includes(query) ||
       plusOneNames.includes(query) ||
-      (guest.group_name && guest.group_name.toLowerCase().includes(query))
-    );
+      (guest.group_name && guest.group_name.toLowerCase().includes(query));
+
+    if (!matchesSearch) return false;
+
+    if (statusFilter === "all") return true;
+    const rsvp = getRsvp(guest);
+    if (statusFilter === "pending") return !rsvp || rsvp.status === "pending";
+    return rsvp?.status === statusFilter;
   });
 
   const getStatusBadge = (guest: Guest) => {
@@ -171,8 +178,8 @@ export default function GuestsPage() {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+      {/* Search & Filter */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-6 space-y-3">
         <div className="relative">
           <Search
             size={20}
@@ -185,6 +192,27 @@ export default function GuestsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-300 focus:border-rose-300 outline-none"
           />
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {(["all", "attending", "pending", "not_attending"] as const).map((s) => {
+            const labels = { all: "All", attending: "Attending", pending: "Pending", not_attending: "Not Attending" };
+            const active = statusFilter === s;
+            const colors = {
+              all: active ? "bg-gray-800 text-white border-gray-800" : "border-gray-300 text-gray-600 hover:border-gray-400",
+              attending: active ? "bg-green-600 text-white border-green-600" : "border-gray-300 text-gray-600 hover:border-green-400",
+              pending: active ? "bg-yellow-500 text-white border-yellow-500" : "border-gray-300 text-gray-600 hover:border-yellow-400",
+              not_attending: active ? "bg-red-500 text-white border-red-500" : "border-gray-300 text-gray-600 hover:border-red-400",
+            };
+            return (
+              <button
+                key={s}
+                onClick={() => setStatusFilter(s)}
+                className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${colors[s]}`}
+              >
+                {labels[s]}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -234,14 +262,23 @@ export default function GuestsPage() {
         </div>
       </div>
 
+      {/* Results count */}
+      {(searchQuery || statusFilter !== "all") && (
+        <p className="text-sm text-gray-500 mb-2">
+          Showing <span className="font-semibold text-gray-800">{filteredGuests.length}</span> result{filteredGuests.length !== 1 ? "s" : ""}
+          {searchQuery && <> for &ldquo;{searchQuery}&rdquo;</>}
+          {statusFilter !== "all" && <> · {statusFilter === "not_attending" ? "Not Attending" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}</>}
+        </p>
+      )}
+
       {/* Guest List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-gray-500">Loading guests...</div>
         ) : filteredGuests.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            {searchQuery
-              ? "No guests found matching your search."
+            {searchQuery || statusFilter !== "all"
+              ? "No guests found matching your search or filter."
               : "No guests yet. Add your first guest!"}
           </div>
         ) : (
