@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find D:/wedding-invitation-system -name *.sql -o -name schema*)",
+      "Bash(find D:/wedding-invitation-system/supabase -type f -name *.sql)"
+    ]
+  }
+}

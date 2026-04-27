@@ -26,12 +26,6 @@ export async function GET() {
         status,
         number_attending,
         responded_at
-      ),
-      table_assignments (
-        table_id,
-        tables (
-          name
-        )
       )
     `,
     )
@@ -43,20 +37,37 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Log for debugging
-  console.log(
-    "Fetched guests with RSVPs:",
-    JSON.stringify(
-      data?.map((g) => ({
-        name: g.first_name,
-        rsvps: g.rsvps,
-      })),
-      null,
-      2,
-    ),
-  );
+  // Fetch table assignments separately to avoid RLS issues with nested joins
+  const { data: assignments } = await supabase
+    .from("table_assignments")
+    .select(
+      `
+      guest_id,
+      table_id,
+      tables (
+        name
+      )
+    `,
+    )
+    .in(
+      "guest_id",
+      (data ?? []).map((g) => g.id),
+    );
 
-  return NextResponse.json({ guests: data });
+  // Merge assignments into guests
+  const assignmentsByGuest: Record<string, { table_id: string; tables: { name: string } }[]> = {};
+  for (const a of assignments ?? []) {
+    if (!assignmentsByGuest[a.guest_id]) assignmentsByGuest[a.guest_id] = [];
+    const tables = Array.isArray(a.tables) ? a.tables[0] : a.tables;
+    assignmentsByGuest[a.guest_id].push({ table_id: a.table_id, tables: tables as { name: string } });
+  }
+
+  const guests = (data ?? []).map((g) => ({
+    ...g,
+    table_assignments: assignmentsByGuest[g.id] ?? [],
+  }));
+
+  return NextResponse.json({ guests });
 }
 
 export async function POST(request: NextRequest) {
