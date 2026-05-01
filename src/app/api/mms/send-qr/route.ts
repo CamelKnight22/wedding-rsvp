@@ -110,6 +110,8 @@ ${tableName ? `Your table: ${tableName}` : "Table assignment coming soon!"}
 
 Show this QR code when you arrive, or scan it to see your seating details.
 
+There is a Car Park behind the venue called Nelson Car Park. Parking is free if you enter at 6pm or after and there is a backdoor to the venue from the carpark entrance.
+
 See you there! 💕`;
 
       // Send MMS
